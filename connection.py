@@ -6,6 +6,7 @@ from telethon import *
 import getch
 
 import logo
+import chat
 
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')
@@ -31,13 +32,15 @@ def splashScreen(api): #Main menu
             usersList = glob.glob("./*.session") #Refresh the list
 
         listDisplay(usersList)
-        cprint("C: Connect to an existing profile    N: New profile    D: Delete a profile    ", "white", "on_green")
-        cprint("Q: Quit", "white", "on_yellow")
+        text = colored("C: Connect to an existing profile    N: New profile    D: Delete a profile", 'blue', attrs=['underline'])
+        print(text)
+        text = colored("Q: Quit\n", 'yellow', attrs=['underline'])
+        print(text)
 
         key = getch.getch().lower()
         if key == 'c':
              #TODO Enter chat and stuff
-             continue
+             login(api, usersList)
         elif key == 'n':
             createUser(api)
             usersList = glob.glob("./*.session") #Refresh the list
@@ -48,7 +51,7 @@ def splashScreen(api): #Main menu
 
 
             ###Sign in###
-def login(api, usersList):  #TODO Menu with option to quit, otherwise redirects to chats
+def login(api, usersList):
     quit = False
     login = False
 
@@ -63,16 +66,22 @@ def login(api, usersList):  #TODO Menu with option to quit, otherwise redirects 
                 login = True
         except ValueError:
             continue
+    cls()
 
     username = usersList[intId-1][2:len(usersList[intId-1])-8]
     client = TelegramClient(username, api.id, api.hash)
+    client.connect()
 
     if not client.is_user_authorized():
         with open("phones.json", 'r') as f:
             phones = json.load(f)
             phone = phones[username]
-            cls()
-        myself = client.sign_in(phone, input("Enter the code Telegram just sent you: "))
+
+        print("One moment please :-)...")
+        client.send_code_request(phone)
+        client.sign_in(phone, input("Enter the code Telegram just sent you: "))
+
+    chat.chatSelection(client)
 
 
         ###Sign up###
