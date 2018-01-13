@@ -143,7 +143,7 @@ def removeUser(usersList):
 
         key = input(text).lower()
         try:    #User has entered a number
-            intId = int(key) 
+            intId = int(key)
 
             if intId>0 and intId<=len(usersList):   #Remove entry from JSON
                 username = usersList[intId-1][2:len(usersList[intId-1])-8]
@@ -157,6 +157,6 @@ def removeUser(usersList):
                 os.remove(username+".session")
                 break
 
-        except ValueError as e:
+        except:
             if key == 'q':
                 break
