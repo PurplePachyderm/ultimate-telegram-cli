@@ -25,6 +25,7 @@ def listDisplay(usersList):
 
 
 def splashScreen(api): #Main menu
+    cls()
     while True:
         usersList = glob.glob("./*.session") #Selects all session files
         if len(usersList) == 0: #No users found
@@ -58,30 +59,33 @@ def login(api, usersList):
     while not quit:
         listDisplay(usersList)
 
-        userId = input("\n Choose an account (enter number):")
+        userId = input("\n Choose an account (enter number) or enter Q to quit:")
         try:    #Verifies input validity
             intId = int(userId)
             if intId>0 and intId<=len(usersList):
                 quit = True
                 login = True
         except ValueError:
-            continue
+            userId = userId.lower()
+            if userId == 'q':
+                quit = True
     cls()
 
-    username = usersList[intId-1][2:len(usersList[intId-1])-8]
-    client = TelegramClient(username, api.id, api.hash)
-    client.connect()
+    if login:
+        username = usersList[intId-1][2:len(usersList[intId-1])-8]
+        client = TelegramClient(username, api.id, api.hash)
+        client.connect()
 
-    if not client.is_user_authorized():
-        with open("phones.json", 'r') as f:
-            phones = json.load(f)
-            phone = phones[username]
+        if not client.is_user_authorized():
+            with open("phones.json", 'r') as f:
+                phones = json.load(f)
+                phone = phones[username]
 
-        print("One moment please :-)...")
-        client.send_code_request(phone)
-        client.sign_in(phone, input("Enter the code Telegram just sent you: "))
+            print("One moment please :-)...")
+            client.send_code_request(phone)
+            client.sign_in(phone, input("Enter the code Telegram just sent you: "))
 
-    chat.chatSelection(client)
+        chat.chatSelection(client)
 
 
         ###Sign up###
