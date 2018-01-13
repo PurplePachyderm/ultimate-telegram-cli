@@ -14,8 +14,6 @@ def cls():
 
 
 def listDisplay(usersList):
-  cls()
-  logo.display()
   text = colored("Here's the list of all registered users:\n", 'green', attrs=['underline'])
   print(text)
   for i in range (0, len(usersList)):
@@ -25,13 +23,14 @@ def listDisplay(usersList):
 
 
 def splashScreen(api): #Main menu
-    cls()
     while True:
+        cls()
         usersList = glob.glob("./*.session") #Selects all session files
         if len(usersList) == 0: #No users found
             createUser(api)
             usersList = glob.glob("./*.session") #Refresh the list
 
+        logo.display()
         listDisplay(usersList)
         text = colored("C: Connect to an existing profile    N: New profile    D: Delete a profile", 'blue', attrs=['underline'])
         print(text)
@@ -56,20 +55,21 @@ def login(api, usersList):
     quit = False
     login = False
 
-    while not quit:
+    while True:
+        cls()
+        logo.display()
         listDisplay(usersList)
 
         userId = input("\n Choose an account (enter number) or enter Q to quit:")
         try:    #Verifies input validity
             intId = int(userId)
             if intId>0 and intId<=len(usersList):
-                quit = True
                 login = True
+                break
         except ValueError:
             userId = userId.lower()
             if userId == 'q':
-                quit = True
-    cls()
+                break
 
     if login:
         username = usersList[intId-1][2:len(usersList[intId-1])-8]
@@ -81,8 +81,10 @@ def login(api, usersList):
                 phones = json.load(f)
                 phone = phones[username]
 
+            cls()
             print("One moment please :-)...")
             client.send_code_request(phone)
+            cls()
             client.sign_in(phone, input("Enter the code Telegram just sent you: "))
 
         chat.chatSelection(client)
@@ -97,9 +99,10 @@ def createUser(api):
     while not connected and not correctPhone:
         correctPhone = False
 
+        cls()
         signupMessage(firstTry)
         phone = input("Enter your phone number (international format):")
-
+        cls()
         signupMessage(firstTry)
         username = input("Enter your username:")
 
@@ -121,7 +124,6 @@ def createUser(api):
 
 
 def signupMessage(bool):
-    cls()
     logo.display()
     if bool:
           text = colored("It seems you're not logged in yet...\n", 'green', attrs=[])
@@ -133,18 +135,18 @@ def signupMessage(bool):
 
             ###Remove user###
 def removeUser(usersList):
-    quit = False
-    while not quit:
+    while True:
         cls()
         logo.display()
         listDisplay(usersList)
-        cprint("Enter the number of the user you want to delete.    Q: Quit", "white", "on_red")
-        key = getch.getch().lower()
+        text = colored("Enter the number of the user you want to delete or enter Q to quit:", "red", attrs=['underline'])
+
+        key = input(text).lower()
         try:    #User has entered a number
-            intId = int(key)
-            username = usersList[intId-1][2:len(usersList[intId-1])-8]
+            intId = int(key) 
 
             if intId>0 and intId<=len(usersList):   #Remove entry from JSON
+                username = usersList[intId-1][2:len(usersList[intId-1])-8]
                 with open('phones.json', 'r') as f:
                     phones = json.load(f)
 
@@ -153,11 +155,8 @@ def removeUser(usersList):
                     phones = json.dump(phones, outfile)
 
                 os.remove(username+".session")
-                quit = True
+                break
 
         except ValueError as e:
-            print("Trying to quit...")
-            print(e)
-            getch.getch()
             if key == 'q':
-                quit = True
+                break
