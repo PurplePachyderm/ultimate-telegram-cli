@@ -139,7 +139,7 @@ def removeUser(usersList):
         cls()
         logo.display()
         listDisplay(usersList)
-        text = colored("Enter the number of the user you want to delete or enter Q to quit:", "red", attrs=['underline'])
+        text = colored("Choose the user you want to delete or enter Q to quit:", "red", attrs=['underline'])
 
         key = input(text).lower()
         try:    #User has entered a number
